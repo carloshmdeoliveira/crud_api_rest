@@ -2,11 +2,12 @@ from flask import Flask, Response, request
 from flask_sqlalchemy import SQLAlchemy
 from models import Cliente
 from database import db_session
+from database import Base
 import mysql.connector
 import json
 
 app = Flask(__name__)
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+# app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 def gera_response(status, nome_do_conteudo, conteudo, mensagem=False):
     body = {}
@@ -15,25 +16,25 @@ def gera_response(status, nome_do_conteudo, conteudo, mensagem=False):
         body[""] = mensagem
     return Response(json.dumps(body, indent=4, sort_keys=True, default=str), status = status, mimetype="")
 
-@app.after_request
-def add_header(r):
-    r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    r.headers["Pragma"] = "no-cache"
-    r.headers["Expires"] = "0"
-    r.headers['Cache-Control'] = 'public, max-age=0'
-    return r
+# @app.after_request
+# def add_header(r):
+#     r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+#     r.headers["Pragma"] = "no-cache"
+#     r.headers["Expires"] = "0"
+#     r.headers['Cache-Control'] = 'public, max-age=0'
+#     return r
 
-@app.route("/clientes2", methods=["GET"])
+@app.route("/clientes", methods=["GET"])
 def seleciona_clientes():
     clientes_objetos = Cliente.query.all()
     clientes_json = [cliente.to_json() for cliente in clientes_objetos]  
-    return gera_response(200, "clientes", clientes_json.to_json, "Clientes listados.")
+    return gera_response(200, "clientes", clientes_json, "Clientes listados.")
 
 @app.route("/cliente/<codigo>", methods=["GET"])
 def seleciona_cliente(codigo):
-     cliente_objeto = Cliente.query.filter_by(codigo=codigo).first()
+     cliente_objeto = Cliente.query.filter_by(codigo=int(codigo)).first()
      cliente_json = cliente_objeto.to_json()
-     return gera_response(200, "cliente", cliente_json.to_json, "Cliente listado.")
+     return gera_response(200, "cliente", cliente_json, "Cliente selecionado.")
 
 # @app.route("/cliente", methods=["POST"])
 # def cria_cliente():
@@ -81,5 +82,5 @@ def seleciona_cliente(codigo):
 #         print('Erro', e)
 #         return gera_response(400, "usuario", {}, "Erro ao Deletar.")
 
-if __name__== '__main__':
-    app.run()
+# if __name__== '__main__':
+app.run()
