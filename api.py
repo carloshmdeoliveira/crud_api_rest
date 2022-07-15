@@ -1,10 +1,13 @@
-from flask import Flask, Response, request
+from flask import Flask, Request, Response, request
 from flask_sqlalchemy import SQLAlchemy
 from models import Cliente
 from database import db_session
 from database import Base
 import mysql.connector
 import json
+
+# request.data = b'[{\'nome\': \'nome\', \'razao_social\': \'razao_social\', \'cnpj\': \'cnpj\', \'data_inclusao\': \'data_inclusao\'}]'
+# my_bytes_value = b'[{\'Date\': \'2016-05-21T21:35:40Z\', \'CreationDate\': \'2012-05-05\', \'LogoType\': \'png\', \'Ref\': 164611595, \'Classe\': [\'Email addresses\', \'Passwords\'],\'Link\':\'http://some_link.com\'}]'
 
 app = Flask(__name__)
 # app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -36,17 +39,18 @@ def seleciona_cliente(codigo):
      cliente_json = cliente_objeto.to_json()
      return gera_response(200, "cliente", cliente_json, "Cliente selecionado.")
 
-# @app.route("/cliente", methods=["POST"])
-# def cria_cliente():
-#     body = request.get_json()
-#     try:
-#         cliente_objeto = Cliente(nome=body["nome"], razao_social=body["razao_social"], cnpj=body["cnpj"], data_inclusao=body["data_inclusao"])
-#         db_session.add(cliente_objeto)
-#         db_session.commit()
-#         return gera_response(201, "cliente", cliente_objeto.to_json(), "Criado com sucesso!")
-#     except Exception as e:
-#         print(e)
-#         return gera_response(400, "usuario", {}, "Erro ao cadastrar.")
+@app.route("/cliente", methods=["POST"])
+def cria_cliente():
+    json.loads(request.data)
+    body = json.dumps(request.data)
+    try:
+        cliente = Cliente(nome=body["nome"], razao_social=body["razao_social"], cnpj=body["cnpj"], data_inclusao=body["data_inclusao"])
+        db_session.add(cliente)
+        db_session.commit()
+        return gera_response(201, "cliente", cliente.to_json(), "Criado com sucesso!")
+    except Exception as e:
+        print('Erro', e)
+        return gera_response(400, "usuario", {}, "Erro ao cadastrar.")
 
 # @app.route("/cliente/<codigo>", methods=["PUT"])
 # def atualiza_cliente(codigo):
