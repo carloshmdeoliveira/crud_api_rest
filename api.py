@@ -42,11 +42,12 @@ def seleciona_cliente(codigo):
 @app.route("/cliente", methods=["POST"])
 def cria_cliente():
     pre_json = request.data.decode('utf8').replace("'", '"')
+    print("pre_json=", pre_json)
     body = json.loads(pre_json)
     print("body=", body)
     print("body type=", type(body))
     try:
-        cliente = Cliente(nome=body["nome"], razao_social=body["razao_social"], cnpj=body["cnpj"], data_inclusao=body["data_inclusao"])
+        cliente = Cliente(codigo=body['codigo'], nome=body["nome"], razao_social=body["razao_social"], cnpj=body["cnpj"], data_inclusao=body["data_inclusao"])
         db_session.add(cliente)
         db_session.commit()
         return gera_response(201, "cliente", cliente.to_json(), "Criado com sucesso!")
