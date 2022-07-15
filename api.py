@@ -41,8 +41,10 @@ def seleciona_cliente(codigo):
 
 @app.route("/cliente", methods=["POST"])
 def cria_cliente():
-    json.loads(request.data)
-    body = json.dumps(request.data)
+    pre_json = request.data.decode('utf8').replace("'", '"')
+    body = json.loads(pre_json)
+    print("body=", body)
+    print("body type=", type(body))
     try:
         cliente = Cliente(nome=body["nome"], razao_social=body["razao_social"], cnpj=body["cnpj"], data_inclusao=body["data_inclusao"])
         db_session.add(cliente)
